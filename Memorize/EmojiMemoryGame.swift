@@ -7,14 +7,23 @@
 
 import SwiftUI
 
+//ObservableObject allows the class to publish changes
 class EmojiMemoryGame: ObservableObject {
-    static let emojis = ["✈️","🚲","🚂","🚢","🚗","🚁","🚠","🚀","🛸","🏍","🚜","🛴"]
+    typealias Card = MemoryGame<String>.Card
+    private static let emojis = ["✈️","🚲","🚂","🚢","🚗","🚁","🚠","🚀","🛸","🏍","🚜","🛴"]
     
-    @Published private(set) var model: MemoryGame<String> =
-    MemoryGame<String>(numberOfPairsOfCards: 4 ){pairIndex in emojis[pairIndex]}
+    private static func createMemoryGame() -> MemoryGame<String> {
+        MemoryGame<String>(numberOfPairsOfCards: 9, createCardContent: { pairIndex in
+            emojis[pairIndex]
+        })
+    }
     
-    var cards: Array<MemoryGame<String>.Card> {
-        return model.cards
+    
+    //@Published dispatches a change whenever the model changes
+    @Published private(set) var model = createMemoryGame()
+    
+    var cards: Array<Card> {
+        model.cards
     }
     
     //MARK: -Intents
