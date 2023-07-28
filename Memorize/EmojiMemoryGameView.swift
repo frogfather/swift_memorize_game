@@ -24,8 +24,12 @@ struct EmojiMemoryGameView: View {
             } else {
                 CardView(card: card)
                     .padding(4)
+                    //Transition scales the card out
+                    .transition(AnyTransition.scale.animation(Animation.easeInOut(duration: 2)))
                     .onTapGesture {
-                        game.choose(card)
+                        withAnimation{
+                            game.choose(card)
+                        }
                     }
             }
             
@@ -34,7 +38,10 @@ struct EmojiMemoryGameView: View {
     }
     var shuffle: some View {
         Button("Shuffle") {
-            game.shuffle()
+            withAnimation {
+                game.shuffle()
+            }
+        
         }
     }
 }
