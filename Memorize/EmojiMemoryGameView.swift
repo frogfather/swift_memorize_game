@@ -12,6 +12,7 @@ struct EmojiMemoryGameView: View {
     var body: some View {
         VStack {
             gameBody
+            deckBody
             shuffle
         }
         .padding()
@@ -49,7 +50,7 @@ struct EmojiMemoryGameView: View {
         }
         .onAppear { //Avoids putting view on screen until after its container appears
             //"deal" cards
-            withAnimation {
+            withAnimation(.easeInOut(duration: 5)) {
                 for card in game.cards {
                     deal(card)
                 }
@@ -57,6 +58,18 @@ struct EmojiMemoryGameView: View {
         }
         .foregroundColor(.red)
     }
+    
+    var deckBody: some View {
+        ZStack {
+            ForEach(game.cards.filter(isUndealt)) { card in
+                CardView(card: card)
+                    .transition(AnyTransition.asymmetric(insertion: .scale, removal:.opacity))
+            }
+        }
+        .frame(width: CardConstants.undealtWidth, height: CardConstants.undealtHeight)
+        .foregroundColor(CardConstants.color)
+    }
+    
     var shuffle: some View {
         Button("Shuffle") {
             withAnimation {
@@ -65,6 +78,15 @@ struct EmojiMemoryGameView: View {
         
         }
     }
+}
+
+private struct CardConstants {
+    static let color = Color.red
+    static let aspectRatio: CGFloat = 2/3
+    static let dealDuration: Double = 0.5
+    static let totalDealDuration: Double = 2
+    static let undealtHeight: CGFloat = 90
+    static let undealtWidth = undealtHeight * aspectRatio
 }
 
 
