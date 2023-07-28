@@ -40,6 +40,10 @@ struct EmojiMemoryGameView: View {
         return Animation.easeInOut(duration: CardConstants.dealDuration).delay(delay)
     }
     
+    private func zIndex(of card:EmojiMemoryGame.Card) -> Double {
+        -Double(game.cards.firstIndex(where: {$0.id == card.id}) ?? 0)
+    }
+    
     var gameBody: some View {
         AspectVGrid(items: game.cards, aspectRatio: 2/3) { card in
             if isUndealt(card) || (card.isMatched && !card.isFaceUp) {
@@ -49,6 +53,7 @@ struct EmojiMemoryGameView: View {
                     .matchedGeometryEffect(id: card.id, in: dealingNamespace)
                     .padding(4) //.identity on a transition means no animation
                     .transition(AnyTransition.asymmetric(insertion: .identity, removal:.opacity))
+                    .zIndex(zIndex(of: card))
                     .onTapGesture {
                         withAnimation{
                             game.choose(card)
@@ -65,6 +70,7 @@ struct EmojiMemoryGameView: View {
                 CardView(card: card)
                     .matchedGeometryEffect(id: card.id, in: dealingNamespace)
                     .transition(AnyTransition.asymmetric(insertion: .opacity, removal:.identity))
+                    .zIndex(zIndex(of: card))
             }
         }
         .frame(width: CardConstants.undealtWidth, height: CardConstants.undealtHeight)
