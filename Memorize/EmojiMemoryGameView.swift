@@ -15,7 +15,12 @@ struct EmojiMemoryGameView: View {
         VStack {
             gameBody
             deckBody
-            shuffle
+            HStack {
+                restart
+                Spacer()
+                shuffle
+            }
+            .padding(.horizontal)
         }
         .padding()
     }
@@ -40,6 +45,7 @@ struct EmojiMemoryGameView: View {
         return Animation.easeInOut(duration: CardConstants.dealDuration).delay(delay)
     }
     
+    //Largest index is in front, so this returns a larger negative number for cards further down the deck
     private func zIndex(of card:EmojiMemoryGame.Card) -> Double {
         -Double(game.cards.firstIndex(where: {$0.id == card.id}) ?? 0)
     }
@@ -92,55 +98,62 @@ struct EmojiMemoryGameView: View {
             withAnimation {
                 game.shuffle()
             }
-        
+            
         }
     }
-}
-
-private struct CardConstants {
-    static let color = Color.red
-    static let aspectRatio: CGFloat = 2/3
-    static let dealDuration: Double = 0.5
-    static let totalDealDuration: Double = 2
-    static let undealtHeight: CGFloat = 90
-    static let undealtWidth = undealtHeight * aspectRatio
-}
-
-
-struct CardView: View {
-    let card: EmojiMemoryGame.Card
     
-    var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                Pie(startAngle: Angle(degrees: -90), endAngle: Angle(degrees:20))
-                    .padding(5)
-                    .opacity(0.5)
-                Text(card.content)
-                    .rotationEffect(Angle.degrees(card.isMatched ? 360 : 0))
-                    .animation(Animation.linear(duration: 2).repeatForever(autoreverses: false))
-                    .font(Font.system(size:DrawingConstants.fontSize))
-                    .scaleEffect(scale(thatFits: geometry.size));
+    var restart: some View {
+        Button("Restart") {
+            withAnimation {
+                dealt = []
+                game.restart()
             }
-            .cardify(isFaceUp: card.isFaceUp)
         }
     }
     
-    private func scale(thatFits size: CGSize) -> CGFloat {
-        min(size.width, size.height) / (DrawingConstants.fontSize / DrawingConstants.fontScale)
+    
+    private struct CardConstants {
+        static let color = Color.red
+        static let aspectRatio: CGFloat = 2/3
+        static let dealDuration: Double = 0.5
+        static let totalDealDuration: Double = 2
+        static let undealtHeight: CGFloat = 90
+        static let undealtWidth = undealtHeight * aspectRatio
     }
     
-
     
-    private struct DrawingConstants {
-        static let fontScale: CGFloat = 0.7
-        static let fontSize: CGFloat = 32
+    struct CardView: View {
+        let card: EmojiMemoryGame.Card
+        
+        var body: some View {
+            GeometryReader { geometry in
+                ZStack {
+                    Pie(startAngle: Angle(degrees: -90), endAngle: Angle(degrees:20))
+                        .padding(5)
+                        .opacity(0.5)
+                    Text(card.content)
+                        .rotationEffect(Angle.degrees(card.isMatched ? 360 : 0))
+                        .animation(Animation.linear(duration: 2).repeatForever(autoreverses: false))
+                        .font(Font.system(size:DrawingConstants.fontSize))
+                        .scaleEffect(scale(thatFits: geometry.size));
+                }
+                .cardify(isFaceUp: card.isFaceUp)
+            }
+        }
+        
+        private func scale(thatFits size: CGSize) -> CGFloat {
+            min(size.width, size.height) / (DrawingConstants.fontSize / DrawingConstants.fontScale)
+        }
+        
+        
+        
+        private struct DrawingConstants {
+            static let fontScale: CGFloat = 0.7
+            static let fontSize: CGFloat = 32
+        }
     }
+    
 }
-
-
-
-
 
 
 struct ContentView_Previews: PreviewProvider {
