@@ -48,14 +48,6 @@ struct EmojiMemoryGameView: View {
                     }
             }
         }
-        .onAppear { //Avoids putting view on screen until after its container appears
-            //"deal" cards
-            withAnimation(.easeInOut(duration: 5)) {
-                for card in game.cards {
-                    deal(card)
-                }
-            }
-        }
         .foregroundColor(.red)
     }
     
@@ -63,11 +55,19 @@ struct EmojiMemoryGameView: View {
         ZStack {
             ForEach(game.cards.filter(isUndealt)) { card in
                 CardView(card: card)
-                    .transition(AnyTransition.asymmetric(insertion: .scale, removal:.opacity))
+                    .transition(AnyTransition.asymmetric(insertion: .opacity, removal:.scale))
             }
         }
         .frame(width: CardConstants.undealtWidth, height: CardConstants.undealtHeight)
         .foregroundColor(CardConstants.color)
+        .onTapGesture { //Avoids putting view on screen until after its container appears
+            //"deal" cards
+            withAnimation(.easeInOut(duration: 5)) {
+                for card in game.cards {
+                    deal(card)
+                }
+            }
+        }
     }
     
     var shuffle: some View {
