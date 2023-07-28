@@ -17,9 +17,21 @@ struct EmojiMemoryGameView: View {
         .padding()
     }
     
+    //@State is for temporary state that is related only to the view
+    //The model isn't concerned with the dealt state of the card
+    @State private var dealt = Set<Int>()
+    
+    private func deal(_ card: EmojiMemoryGame.Card) {
+        dealt.insert(card.id)
+    }
+    
+    private func isUndealt(_ card: EmojiMemoryGame.Card) -> Bool {
+        !dealt.contains(card.id)
+    }
+    
     var gameBody: some View {
-        AspectVGrid(items: game.cards, aspectRatio: 2/3, content: { card in
-            if card.isMatched && !card.isFaceUp {
+        AspectVGrid(items: game.cards, aspectRatio: 2/3) { card in
+            if isUndealt(card) || (card.isMatched && !card.isFaceUp) {
                 Color.clear
             } else {
                 CardView(card: card)
@@ -34,8 +46,15 @@ struct EmojiMemoryGameView: View {
                         }
                     }
             }
-            
-        })
+        }
+        .onAppear { //Avoids putting view on screen until after its container appears
+            //"deal" cards
+            withAnimation {
+                for card in game.cards {
+                    deal(card)
+                }
+            }
+        }
         .foregroundColor(.red)
     }
     var shuffle: some View {
