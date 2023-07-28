@@ -12,15 +12,18 @@ struct EmojiMemoryGameView: View {
     
     @Namespace private var dealingNamespace
     var body: some View {
-        VStack {
-            gameBody
-            deckBody
-            HStack {
-                restart
-                Spacer()
-                shuffle
+        ZStack(alignment: .bottom) {
+            VStack {
+                gameBody
+                deckBody
+                HStack {
+                    restart
+                    Spacer()
+                    shuffle
+                }
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
+            deckBody
         }
         .padding()
     }
