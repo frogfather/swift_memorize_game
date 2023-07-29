@@ -15,7 +15,6 @@ struct EmojiMemoryGameView: View {
         ZStack(alignment: .bottom) {
             VStack {
                 gameBody
-                deckBody
                 HStack {
                     restart
                     Spacer()
@@ -128,10 +127,30 @@ struct EmojiMemoryGameView: View {
     struct CardView: View {
         let card: EmojiMemoryGame.Card
         
+        @State private var animatedBonusRemaining: Double = 0
+        
         var body: some View {
             GeometryReader { geometry in
                 ZStack {
-                    Pie(startAngle: Angle(degrees: -90), endAngle: Angle(degrees:20))
+                    Group {
+                        if card.isConsumingBonusTime {
+                            //This is a little complicated:
+                            //Animations can generally only animate things that have already happened
+                            //Here we want to animate the bonus time going to 0 which hasn't yet happened
+                            Pie(startAngle: Angle(degrees: -90), endAngle: Angle(degrees: (1 - animatedBonusRemaining)*360-90))
+                                .onAppear {
+                                    //Set our @State variable animatedBonusRemaining to the card's current value
+                                    animatedBonusRemaining = card.bonusRemaining
+                                    //animate with a duration = the remaining bonus time
+                                    withAnimation(.linear(duration: card.bonusTimeRemaining)) {
+                                        //and animate that @State variable going to zero
+                                        animatedBonusRemaining = 0
+                                    }
+                                }
+                        } else {
+                            Pie(startAngle: Angle(degrees: 0-90), endAngle: Angle(degrees: (1-card.bonusRemaining)*360-90))
+                        }
+                    }
                         .padding(5)
                         .opacity(0.5)
                     Text(card.content)

@@ -22,11 +22,8 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
             !cards[chosenIndex].isFaceUp,
             !cards[chosenIndex].isMatched
         {
-            print("Card is face down and not matched")
             if let potentialMatchIndex = indexOfTheOneAndOnlyCard {
-                print("potential match index is index of the one and only")
                 if cards[chosenIndex].content == cards[potentialMatchIndex].content {
-                    print("card is matched")
                     cards[chosenIndex].isMatched = true
                     cards[potentialMatchIndex].isMatched = true
                 }
@@ -53,8 +50,20 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
     }
     
     struct Card: Identifiable {
-        var isFaceUp = false
-        var isMatched = false
+        var isFaceUp = false {
+            didSet {
+                if isFaceUp {
+                    startUsingBonusTime()
+                } else {
+                    stopUsingBonusTime()
+                }
+            }
+        }
+        var isMatched = false {
+            didSet {
+                stopUsingBonusTime()
+            }
+        }
         var content: CardContent
         var id: Int
         
@@ -100,6 +109,7 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
         
         // called when the card transitions to face up state
         private mutating func startUsingBonusTime() {
+            print("Start using bonus time")
             if isConsumingBonusTime, lastFaceUpDate == nil {
                 lastFaceUpDate = Date()
             }
